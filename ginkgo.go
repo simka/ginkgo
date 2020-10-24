@@ -30,7 +30,7 @@ func tree(root, indent string) error {
 		return fmt.Errorf("Couldn't stat %s because %v", root, err)
 	}
 
-	fmt.Printf("%s%s\n", indent, fi.Name())
+	fmt.Println(fi.Name())
 
 	if !fi.IsDir() {
 		return nil
@@ -42,14 +42,25 @@ func tree(root, indent string) error {
 		return fmt.Errorf("Could not read dir %s because %v", root, err)
 	}
 
-	addIndent := "  "
+	var fileNames []string
 
 	for _, fi := range fis {
-		if fi.Name()[0] == '.' {
-			continue
+		if fi.Name()[0] != '.' {
+			fileNames = append(fileNames, fi.Name())
+		}
+	}
+
+	for i, name := range fileNames {
+		addIndent := "│   "
+
+		if i == len(fileNames)-1 {
+			fmt.Printf(indent + "└── ")
+			addIndent = "    "
+		} else {
+			fmt.Printf(indent + "├── ")
 		}
 
-		if err := tree(filepath.Join(root, fi.Name()), indent+addIndent); err != nil {
+		if err := tree(filepath.Join(root, name), indent+addIndent); err != nil {
 			return err
 		}
 	}
