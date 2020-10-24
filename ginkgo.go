@@ -7,6 +7,11 @@ import (
 	"path/filepath"
 )
 
+const defaultIndent = "│   "
+const lastIndent = "└── "
+const nestedIndent = "├── "
+const emptyIndent = "    "
+
 func main() {
 	args := []string{"."}
 
@@ -51,19 +56,25 @@ func tree(root, indent string) error {
 	}
 
 	for i, name := range fileNames {
-		addIndent := "│   "
+		nextIndent := indentLine(indent, i == len(fileNames)-1)
 
-		if i == len(fileNames)-1 {
-			fmt.Printf(indent + "└── ")
-			addIndent = "    "
-		} else {
-			fmt.Printf(indent + "├── ")
-		}
-
-		if err := tree(filepath.Join(root, name), indent+addIndent); err != nil {
+		if err := tree(filepath.Join(root, name), indent+nextIndent); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func indentLine(indent string, last bool) (nextIndent string) {
+	nextIndent = defaultIndent
+
+	if last {
+		fmt.Printf(indent + lastIndent)
+		nextIndent = emptyIndent
+	} else {
+		fmt.Printf(indent + nestedIndent)
+	}
+
+	return
 }
